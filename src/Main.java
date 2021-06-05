@@ -30,8 +30,12 @@ public class Main {
     private static void addNewBlock() throws Exception {
         Scanner sc = new Scanner(System.in);
 
-        System.out.println("\nCreating new block......\n");
-        Thread.sleep(1000);
+        System.out.print("\nCreating new block");
+        for (int i = 0; i < 6; i++) {
+            Thread.sleep(500);
+            System.out.print(".");
+        }
+        System.out.println("\n");
         List<Student> students = new ArrayList<>();
         String name, certificate, institute;
         long roll_no;
@@ -69,6 +73,14 @@ public class Main {
         block.storeInLedger();
     }
 
+    static String returnHex(byte[] inBytes) {
+        String hexString = "";
+        for (byte inByte : inBytes) {
+            hexString += Integer.toString((inByte & 0xff) + 0x100, 16).substring(1);
+        }
+        return hexString;
+    }
+
     private static void verifyLedger() throws IOException, ParseException {
         FileReader ledger = new FileReader("/Users/sukesh/IdeaProjects/Blockchain Fraud Detection/src/ledger.json");
         int r = 0;
@@ -90,14 +102,12 @@ public class Main {
         byte[] dataArray = bos.toByteArray();
         byte[] digest = md.digest(dataArray);
 
-        System.out.println("Hashing: " + returnHex(digest));
-    }
-
-    static String returnHex(byte[] inBytes) {
-        String hexString = "";
-        for (byte inByte : inBytes) {
-            hexString += Integer.toString((inByte & 0xff) + 0x100, 16).substring(1);
+        if (!returnHex(digest).equals(recentHash)) {
+            System.out.println("Hashing: " + returnHex(digest));
+            System.out.println("The ledger has been tampered");
+        } else {
+            System.out.println("Hashing: " + recentHash);
+            System.out.println("The data has not been tampered and is intact");
         }
-        return hexString;
     }
 }
